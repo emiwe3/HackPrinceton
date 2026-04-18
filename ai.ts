@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { getCanvasContext } from "./canvas.js";
+import { getStudentContext } from "./context.js";
 
 const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -14,9 +14,9 @@ const histories = new Map<string, { role: string; parts: { text: string }[] }[]>
 export async function getAIResponse(userMessage: string, userId: string): Promise<string> {
   const history = histories.get(userId) ?? [];
 
-  const canvasContext = await getCanvasContext();
-  const systemWithContext = canvasContext
-    ? `${SYSTEM_PROMPT}\n\nCurrent Canvas data:\n${canvasContext}`
+  const studentContext = await getStudentContext();
+  const systemWithContext = studentContext
+    ? `${SYSTEM_PROMPT}\n\n${studentContext}`
     : SYSTEM_PROMPT;
 
   const chat = genai.chats.create({
