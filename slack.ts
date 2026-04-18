@@ -8,6 +8,24 @@ export async function postToSlack(text: string): Promise<void> {
   await slack.chat.postMessage({ channel: CHANNEL, text });
 }
 
+export async function getSlackContext(): Promise<string> {
+  try {
+    const result = await slack.conversations.history({ channel: CHANNEL, limit: 20 });
+    const messages = result.messages ?? [];
+    if (messages.length === 0) return "No recent Slack announcements.";
+
+    const lines = messages
+      .filter((m) => m.text && m.text.trim().length > 0)
+      .map((m) => `- ${m.text}`);
+
+    return `Recent announcements:\n${lines.join("\n")}`;
+  } catch (err) {
+    console.error("Slack fetch failed:", err);
+    return "";
+  }
+}
+
+
 export async function postDeadlineReminder(): Promise<void> {
   const assignments = await getUpcomingAssignments();
   if (assignments.length === 0) {
